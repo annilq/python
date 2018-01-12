@@ -1,0 +1,7 @@
+/**/*.whl
+/**/pyvenv.cfg
+/**/Include
+/**/Lib
+/**/Scripts
+alien_invasion/pip-selfcheck.json
+.vscode/settings.json
