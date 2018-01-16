@@ -8,4 +8,10 @@ class Settings(object):
 		self.screen_bg = (230,230,230)
 		# 飞船速度设置
 		self.ship_speed_factor=2.3
+		# 子弹设置
+		self.bullet_speed_factor=2
+		self.bullet_width=5
+		self.bullet_heigth=10
+		self.bullet_color=(0,0,0)
+		self.max_bullets_num=3
 		
