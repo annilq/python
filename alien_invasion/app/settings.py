@@ -7,7 +7,7 @@ class Settings(object):
 		self.screen_heigth = 600
 		self.screen_bg = (230,230,230)
 		# 飞船速度设置
-		self.ship_speed_factor=2.3
+		self.ship_speed_factor=2
 		# 子弹设置
 		self.bullet_speed_factor=2
 		self.bullet_width=5

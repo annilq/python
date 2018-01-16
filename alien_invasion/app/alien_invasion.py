@@ -14,10 +14,7 @@ def run_game():
         gf.check_events(al_settings,screen,al_ship,al_bullets)
         # 每次循环都更新飞船与子弹的位置
         al_ship.update()
-        al_bullets.update()
-        for bullet in al_bullets.copy():
-            if bullet.rect.bottom <= 0:
-                al_bullets .remove(bullet)
+        gf.update_bullets(al_bullets)
         gf.update_screen(al_settings,screen,al_ship,al_bullets)
 
 run_game()
