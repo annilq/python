@@ -11,7 +11,6 @@ def check_events(settings,screen,ship,bullets):
 			keyup_event(ship)
 
 def keydown_event(event,settings,screen,ship,bullets):
-	print(ship.rect.centerx)
 	if event.key==pygame.K_RIGHT:
 		ship.moveing_right=True
 	elif event.key==pygame.K_LEFT:
