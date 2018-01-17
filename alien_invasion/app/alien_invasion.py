@@ -7,14 +7,17 @@ def run_game():
     pygame.init()
     pygame.display.set_caption("alien invasion")
     al_settings=Settings()
-    screen=pygame.display.set_mode((al_settings.screen_width,al_settings.screen_heigth))
+    screen=pygame.display.set_mode((al_settings.screen_width,al_settings.screen_height))
     al_ship=Ship(screen,al_settings)
+    al_aliens=Group()
+    gf.create_fleet(screen,al_settings,al_ship,al_aliens)
     al_bullets=Group()
     while True:
         gf.check_events(al_settings,screen,al_ship,al_bullets)
         # 每次循环都更新飞船与子弹的位置
         al_ship.update()
+        gf.update_aliens(al_settings,al_aliens) 
         gf.update_bullets(al_bullets)
-        gf.update_screen(al_settings,screen,al_ship,al_bullets)
+        gf.update_screen(al_settings,screen,al_ship,al_bullets,al_aliens)
 
 run_game()
