@@ -48,7 +48,7 @@ headers = {
 class Setting(object):
     """docstring for Setting"""
 
-    def __init__(self, arg):
+    def __init__(self):
         super().__init__()
         self.headers = headers
         self.pdfkit_options = options
