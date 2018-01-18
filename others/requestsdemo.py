@@ -1,11 +1,11 @@
-#encoding:utf-8
+# coding=utf-8
+# 该网站有反爬虫
 from __future__ import unicode_literals
 
 import logging
 import os
 import re
 import time
-import sys
 
 try:
     from urllib.parse import urlparse  # py3
@@ -26,9 +26,15 @@ html_template = """
 {content}
 </body>
 </html>
+
 """
-
-
+headers={
+"accept":"text/html,application/xhtml+xml,application/xml",
+"accept-language":"zh-CN,zh;q=0.9,en;q=0.8",
+"cache-control":"no-cache",
+"connection":"keep-alive",
+"user-agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
+}
 class Crawler(object):
     """
     爬虫基类，所有爬虫都应该继承此类
@@ -38,30 +44,27 @@ class Crawler(object):
     def __init__(self, name, start_url):
         """
         初始化
-        :param name: 保存问的PDF文件名,不需要后缀名
+        :param name: 将要被保存为PDF的文件名称
         :param start_url: 爬虫入口URL
         """
         self.name = name
         self.start_url = start_url
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-
         self.domain = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(self.start_url))
+        self.headers=headers
 
-    def crawl(self, url):
+
+    @staticmethod
+    def request(url, **kwargs):
         """
-        pass
+        网络请求,返回response对象
         :return:
         """
-        print(url)
-        response = requests.get(url)
+        response = requests.get(url, **kwargs)
         return response
 
     def parse_menu(self, response):
         """
-        解析目录结构,获取所有URL目录列表:由子类实现
-        :param response 爬虫返回的response对象
-        :return: url 可迭代对象(iterable) 列表,生成器,元组都可以
+        从response中解析出所有目录的URL链接
         """
         raise NotImplementedError
 
@@ -69,7 +72,7 @@ class Crawler(object):
         """
         解析正文,由子类实现
         :param response: 爬虫返回的response对象
-        :return: 返回经过处理的html文本
+        :return: 返回经过处理的html正文文本
         """
         raise NotImplementedError
 
@@ -92,20 +95,19 @@ class Crawler(object):
             'outline-depth': 10,
         }
         htmls = []
-        for index, url in enumerate(self.parse_menu(self.crawl(self.start_url))):
-            html = self.parse_body(self.crawl(url));
+        for index, url in enumerate(self.parse_menu(self.request(self.start_url,headers=self.headers))):
+            html = self.parse_body(self.request(url,headers=self.headers))
             if html:
                 f_name = ".".join([str(index), "html"])
                 with open(f_name, 'wb') as f:
                     f.write(html)
                     htmls.append(f_name)
-        for h in htmls:
-            print(h)
-        pdfkit.from_file(htmls, self.name + ".pdf", options=options)
-        for html in htmls:
-            os.remove(html)
-        total_time = time.time() - start
-        print(u"总共耗时：%f 秒" % total_time)
+        if htmls:
+            pdfkit.from_file(htmls, self.name + ".pdf", options=options)
+            for html in htmls:
+                os.remove(html)
+            total_time = time.time() - start
+            print(u"总共耗时：%f 秒" % total_time)
 
 
 class LiaoxuefengPythonCrawler(Crawler):
@@ -120,9 +122,9 @@ class LiaoxuefengPythonCrawler(Crawler):
         :return: url生成器
         """
         soup = BeautifulSoup(response.content, "html.parser")
-        menu_tag = soup.find_all(class_="uk-nav uk-nav-side")[1]
-        for li in menu_tag.find_all("li"):
-            url = li.a.get("href")
+        menu_tag = soup.find(id="x-wiki-index")
+        for a in menu_tag.find_all(class_="x-wiki-index-item"):
+            url = a.get("href")
             if not url.startswith("http"):
                 url = "".join([self.domain, url])  # 补全为全路径
             yield url
@@ -135,7 +137,7 @@ class LiaoxuefengPythonCrawler(Crawler):
         """
         try:
             soup = BeautifulSoup(response.content, 'html.parser')
-            body = soup.find_all(class_="x-wiki-content")[0]
+            body = soup.find(class_="x-content")
 
             # 加入标题, 居中显示
             title = soup.find('h4').get_text()
@@ -150,7 +152,7 @@ class LiaoxuefengPythonCrawler(Crawler):
             pattern = "(<img .*?src=\")(.*?)(\")"
 
             def func(m):
-                if not m.group(3).startswith("http"):
+                if not m.group(2).startswith("http"):
                     rtn = "".join([m.group(1), self.domain, m.group(2), m.group(3)])
                     return rtn
                 else:
@@ -161,10 +163,12 @@ class LiaoxuefengPythonCrawler(Crawler):
             html = html.encode("utf-8")
             return html
         except Exception as e:
+            print(soup)
             logging.error("解析错误", exc_info=True)
+            return False
 
 
 if __name__ == '__main__':
-    start_url = "http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000"
+    start_url = "http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000"
     crawler = LiaoxuefengPythonCrawler("廖雪峰Git", start_url)
     crawler.run()

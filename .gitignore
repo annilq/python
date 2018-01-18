@@ -5,4 +5,5 @@
 /**/Scripts
 alien_invasion/pip-selfcheck.json
 .vscode/settings.json
-alien_invasion/app/__pycache__
+/**/__pycache__
+online_demo/
