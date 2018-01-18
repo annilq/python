@@ -58,33 +58,10 @@ class CrawBlog():
             self.parse_body()
 
     def parse_body(self):
-        print(self.urls)
+        # print(self.urls)
         pdfkit.from_url(
             self.urls, 'out.pdf', options=self.settings.pdfkit_options)
 
 
 myblog = CrawBlog()
-# myblog.run(start_url)
-
-lists = [
-    'https://annilq.github.io/2017/12/18/pwa/',
-    'https://annilq.github.io/2017/12/07/serach/',
-    'https://annilq.github.io/2017/12/01/sort/',
-    'https://annilq.github.io/2017/11/29/datastructures/',
-    'https://annilq.github.io/2017/11/09/rxjs/',
-    'https://annilq.github.io/2017/10/11/observable-pattern/',
-    'https://annilq.github.io/2017/10/11/Promise/',
-    'https://annilq.github.io/2017/09/28/generator/',
-    'https://annilq.github.io/2017/07/16/build-your-redux/',
-    'https://annilq.github.io/2017/07/08/python-todo/',
-    'https://annilq.github.io/2017/07/02/async/',
-    'https://annilq.github.io/2017/04/09/nodejs/',
-    'https://annilq.github.io/2017/03/27/native/',
-    'https://annilq.github.io/2017/03/22/atom/',
-    'https://annilq.github.io/2016/11/15/ios-tip/',
-    'https://annilq.github.io/2016/10/15/emitter/',
-    'https://annilq.github.io/2016/04/18/mongoDb/',
-    'https://annilq.github.io/2016/01/07/Cordovarelease/',
-    'https://annilq.github.io/2015/12/25/hexo-start/'
-]
-pdfkit.from_url('https://annilq.github.io/2017/12/18/pwa/', 'out.pdf', options=myblog.settings.pdfkit_options)
+myblog.run(start_url)
