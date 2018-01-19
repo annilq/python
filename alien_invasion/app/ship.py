@@ -17,6 +17,9 @@ class Ship(object):
 	def blitme(self):
 		self.screen.blit(self.image,self.rect)
 
+	def center_ship(self):
+		self.centerx=float(self.screen_rect.centerx)
+
 	def update(self):
 		"""根据操作更新飞船位置"""
 		if self.moveing_right and self.rect.right<self.screen_rect.right:

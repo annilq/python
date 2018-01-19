@@ -8,6 +8,7 @@ class Settings(object):
 		self.screen_bg = (230,230,230)
 		# 飞船速度设置
 		self.ship_speed_factor=0.5
+		self.ship_left_limit=3
 		# 子弹设置
 		self.bullet_speed_factor=2
 		self.bullet_width=5
@@ -16,7 +17,7 @@ class Settings(object):
 		self.max_bullets_num=3
 		# 外星人设置
 		self.alien_speed_factor=1
-		self.fleet_drop_speed = 10
+		self.fleet_drop_speed = 20
 		# 1和-1表示方向
 		self.fleet_direction=1
 		
