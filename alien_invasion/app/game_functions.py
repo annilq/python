@@ -3,7 +3,7 @@ from time import sleep
 import pygame
 from bullet import Bullet
 from alien import Alien
-def check_events(settings,screen,ship,bullets):
+def check_events(settings,screen,stat,ship,bullets,al_button):
 	for event in pygame.event.get():
 		if event.type==pygame.QUIT:
 			sys.exit()
@@ -11,7 +11,16 @@ def check_events(settings,screen,ship,bullets):
 			keydown_event(event,settings,screen,ship,bullets)
 		elif event.type==pygame.KEYUP:
 			keyup_event(ship)
+		elif event.type==pygame.MOUSEBUTTONDOWN:
+			mouse_x, mouse_y = pygame.mouse.get_pos()
+			check_play_button(stat,al_button,mouse_x, mouse_y)
+# 鼠标事件
+def check_play_button(stat,al_button,mouse_x, mouse_y):
+	if al_button.rect.collidepoint(mouse_x, mouse_y):
+		stat.game_active=True
 
+
+# 键盘事件
 def keydown_event(event,settings,screen,ship,bullets):
 	if event.key==pygame.K_RIGHT:
 		ship.moveing_right=True
@@ -117,7 +126,7 @@ def check_aliens_bottom(settings,screen,ship,aliens,bullets,stat):
 			break
 	pass
 # 更新试图
-def update_screen(settings,screen,ship,bullets,aliens):
+def update_screen(settings,screen,ship,bullets,aliens,stat,al_button):
 	# 每次都要填充背景色，否则会有飞机移动痕迹
     screen.fill(settings.screen_bg)
     for bullet in bullets.sprites():
@@ -127,4 +136,7 @@ def update_screen(settings,screen,ship,bullets,aliens):
     aliens.draw(screen)
     # for alien in aliens.sprites():
     # 	alien.blitme()
+    if not stat.game_active:
+    	al_button.draw_button()
+    # 这句一定要在最后，不然他下面的操作都无效
     pygame.display.flip()

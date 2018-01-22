@@ -10,6 +10,7 @@ class Ship(object):
 		# 不能直接赋值给self.rect.centerx，这样小数部分会丢失
 		self.center=float(self.screen_rect.centerx)
 		self.rect.bottom=self.screen_rect.bottom
+		self.rect.centerx=self.screen_rect.centerx
 		self.ship_speed_factor=settings.ship_speed_factor
 		self.moveing_right=False
 		self.moveing_left=False
