@@ -97,6 +97,7 @@ def update_bullets(settings, screen,stat, ship, bullets, aliens,sb):
         stat.score+=settings.alien_points*len(aliens)
         # 每次分数改变都要重新绘制
         sb.prep_score()
+        check_high_score(stat,sb)
         
     # 外星人没了要创建新的
     if len(aliens) == 0:
@@ -104,6 +105,12 @@ def update_bullets(settings, screen,stat, ship, bullets, aliens,sb):
         settings.increase_speed()
         create_fleet(screen, settings, ship, aliens)
 
+
+def check_high_score(stat,sb):
+    if stat.score>stat.high_score:
+        stat.high_score=stat.score
+        sb.prep_high_score()
+        
 
 # 更新外星人
 def update_aliens(settings, screen, ship, aliens, bullets, stat):
