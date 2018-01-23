@@ -102,6 +102,9 @@ def update_bullets(settings, screen,stat, ship, bullets, aliens,sb):
     # 外星人没了要创建新的
     if len(aliens) == 0:
         bullets.empty()
+        # 设置等级
+        stat.level+=1
+        sb.prep_level()
         settings.increase_speed()
         create_fleet(screen, settings, ship, aliens)
 
