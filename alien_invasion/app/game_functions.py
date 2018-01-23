@@ -116,19 +116,20 @@ def check_high_score(stat,sb):
         
 
 # 更新外星人
-def update_aliens(settings, screen, ship, aliens, bullets, stat):
+def update_aliens(settings, screen, ship, aliens, bullets, stat,sb):
     check_fleet_edges(settings, aliens)
     aliens.update()
     if pygame.sprite.spritecollideany(ship, aliens):
-        ship_hit(settings, screen, ship, aliens, bullets, stat)
+        ship_hit(settings, screen, ship, aliens, bullets, stat,sb)
     # 检测是否撞到底部
-    check_aliens_bottom(settings, screen, ship, aliens, bullets, stat)
+    check_aliens_bottom(settings, screen, ship, aliens, bullets, stat,sb)
 
 
 # 飞船撞击
-def ship_hit(settings, screen, ship, aliens, bullets, stat):
+def ship_hit(settings, screen, ship, aliens, bullets, stat,sb):
     if stat.ship_left_limit > 0:
         stat.ship_left_limit -= 1
+        sb.prep_ships()
         bullets.empty()
         aliens.empty()
         ship.center_ship()
@@ -157,11 +158,11 @@ def change_fleet_direction(settings, aliens):
 
 
 # 检测是否装到了底部
-def check_aliens_bottom(settings, screen, ship, aliens, bullets, stat):
+def check_aliens_bottom(settings, screen, ship, aliens, bullets, stat,sb):
     screen_rect = screen.get_rect()
     for alien in aliens.sprites():
         if alien.rect.bottom >= screen_rect.bottom:
-            ship_hit(settings, screen, ship, aliens, bullets, stat)
+            ship_hit(settings, screen, ship, aliens, bullets, stat,sb)
             break
     pass
 

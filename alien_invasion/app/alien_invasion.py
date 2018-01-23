@@ -33,7 +33,7 @@ def run_game():
             # 每次循环都更新飞船与子弹的位置
             al_ship.update()
             gf.update_aliens(al_settings, screen, al_ship, al_aliens,
-                             al_bullets, stat)
+                             al_bullets, stat,sb)
 
             gf.update_bullets(al_settings, screen,stat, al_ship, al_bullets,
                               al_aliens, sb)
