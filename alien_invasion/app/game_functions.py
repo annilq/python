@@ -16,17 +16,17 @@ def check_events(settings, screen, stat, ship, bullets, al_button):
             keyup_event(ship)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(settings,stat, al_button, mouse_x, mouse_y)
+            check_play_button(settings, stat, al_button, mouse_x, mouse_y)
 
 
 # 鼠标事件
-def check_play_button(settings,stat, al_button, mouse_x, mouse_y):
-	button_click=al_button.rect.collidepoint(mouse_x, mouse_y)
-	if button_click and not stat.game_active :
-		stat.reset_stats()
-		stat.game_active = True		
-		settings.initialize_dynamic_settings()
-		pygame.mouse.set_visible(False) 
+def check_play_button(settings, stat, al_button, mouse_x, mouse_y):
+    button_click = al_button.rect.collidepoint(mouse_x, mouse_y)
+    if button_click and not stat.game_active:
+        stat.reset_stats()
+        stat.game_active = True
+        settings.initialize_dynamic_settings()
+        pygame.mouse.set_visible(False)
 
 
 # 键盘事件
@@ -86,17 +86,24 @@ def fire_bullets(settings, screen, ship, bullets):
 
 
 # 更新子弹
-def update_bullets(settings, screen, ship, bullets, aliens):
+def update_bullets(settings, screen,stat, ship, bullets, aliens,sb):
     bullets.update()
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    for aliens in  collisions.values():
+        # 每次可能击中多个外星人，需要乘以个数
+        stat.score+=settings.alien_points*len(aliens)
+        # 每次分数改变都要重新绘制
+        sb.prep_score()
+        
     # 外星人没了要创建新的
     if len(aliens) == 0:
         bullets.empty()
         settings.increase_speed()
-        create_fleet(screen,settings,ship,aliens)
+        create_fleet(screen, settings, ship, aliens)
+
 
 # 更新外星人
 def update_aliens(settings, screen, ship, aliens, bullets, stat):
@@ -121,7 +128,8 @@ def ship_hit(settings, screen, ship, aliens, bullets, stat):
         stat.reset_stats()
         stat.game_active = False
         pygame.mouse.set_visible(True)
-		
+
+
 # 检测是否撞到边缘
 def check_fleet_edges(settings, aliens):
     for alien in aliens.sprites():
@@ -149,7 +157,7 @@ def check_aliens_bottom(settings, screen, ship, aliens, bullets, stat):
 
 
 # 更新试图
-def update_screen(settings, screen, ship, bullets, aliens, stat, al_button):
+def update_screen(settings, screen, ship, bullets, aliens, stat, al_button,sb):
     # 每次都要填充背景色，否则会有飞机移动痕迹
     screen.fill(settings.screen_bg)
     for bullet in bullets.sprites():
@@ -159,6 +167,7 @@ def update_screen(settings, screen, ship, bullets, aliens, stat, al_button):
     aliens.draw(screen)
     # for alien in aliens.sprites():
     # 	alien.blitme()
+    sb.show_score()
     if not stat.game_active:
         al_button.draw_button()
     # 这句一定要在最后，不然他下面的操作都无效
