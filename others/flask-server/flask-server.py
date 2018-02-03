@@ -1,7 +1,6 @@
 from flask import Flask, url_for,redirect,jsonify,request
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
-import json
 from user import User
 app = Flask(__name__)
 
