@@ -1,7 +1,7 @@
 from flask import Flask, url_for,redirect,jsonify,request
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
-from user import User
+from controller.user import User
 app = Flask(__name__)
 
 # connect to another MongoDB database on the same host
@@ -48,7 +48,7 @@ def api_register():
             resp.headers['Content-Type'] = 'application/json'
             return resp
         else:
-            jsonify({ code: -1, message: "注册失败" })
+            jsonify({ "code": -1, "message": "注册失败" })
 
 @app.route('/<path:path>')
 def catch_all(path):

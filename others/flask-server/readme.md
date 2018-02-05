@@ -8,5 +8,5 @@ pip install flask-login
 ```
 参考文档
 1. [pymongo](http://api.mongodb.com/python/current/tutorial.html)
-2. [flask-pymongo ](http://flask-pymongo.readthedocs.io/en/latest/#flask_pymongo.PyMongo)
+2. [flask-pymongo](http://flask-pymongo.readthedocs.io/en/latest/#flask_pymongo.PyMongo)
 3. [flask-login](https://flask-login.readthedocs.io/en/latest/)
