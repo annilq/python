@@ -7,3 +7,4 @@ alien_invasion/pip-selfcheck.json
 .vscode/settings.json
 /**/__pycache__
 online_demo/
+/**/.vscode/settings.json
