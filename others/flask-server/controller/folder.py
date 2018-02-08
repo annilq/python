@@ -1,9 +1,11 @@
 from flask_pymongo import PyMongo
+from bson.json_util import dumps
+
 class Folder():
     def __init__(self,db):
         super().__init__()
         self.db=db
-    def findfolder(self,name):
+    def find_folder(self,name):
         folder = self.db.folders.find_one({"name":name})
         if folder:
             return folder
@@ -16,9 +18,9 @@ class Folder():
         folders = self.db.folders.find()
         # convert to list
         for folder in folders:
-            output.append({"type": folder["type"], "name": folder["name"]})
+            output.append(folder)
         return output
     def createfolder(self,folder):
         self.db.folders.insert_one(folder)
-        return self.findfolder(folder['name'])
+        return self.find_folder(folder['name'])
 

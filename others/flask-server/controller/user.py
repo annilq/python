@@ -3,7 +3,7 @@ class User():
     def __init__(self,db):
         super().__init__()
         self.db=db
-    def findUser(self,name):
+    def find_user(self,name):
         user = self.db.users.find_one({"name":name})
         if user:
             return user
@@ -22,5 +22,5 @@ class User():
 
     def createUser(self,user):
         self.db.users.insert_one(user)
-        return self.findUser(user['name'])
+        return self.find_user(user['name'])
 

@@ -6,7 +6,7 @@ class Task():
         super().__init__()
         self.db = db
 
-    def findtask(self, name):
+    def find_task(self, name):
         task = self.db.tasks.find_one({"name": name})
         if task:
             return task
@@ -20,9 +20,9 @@ class Task():
         tasks = self.db.tasks.find()
         # convert to list
         for task in tasks:
-            output.append({"userId": task["userId"], "name": task["name"]})
+            output.append(task)
         return output
 
     def createtask(self, task):
         self.db.tasks.insert_one(task)
-        return self.findtask(task['name'])
+        return self.find_task(task['name'])
