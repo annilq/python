@@ -18,12 +18,6 @@ MONGO = PyMongo(app)
 # 加密
 bcrypt = Bcrypt(app)
 
-
-@app.route('/')
-def api_root():
-    return send_from_directory('', 'index.html')
-
-
 @app.route('/api/users')
 def api_users():
     userDb = User(MONGO.db)
@@ -83,10 +77,10 @@ def api_login():
     else:
         return jsonify({"code": -1, "message": "用户不存在"})
 
-
+@app.route('/')
 @app.route('/<path:path>')
 def catch_all(path):
-    return redirect(url_for('api_root'))
+    return send_from_directory('', 'index.html')
 
 
 if __name__ == '__main__':
