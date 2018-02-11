@@ -1,5 +1,6 @@
 from flask import session
 from flask_pymongo import PyMongo
+from bson.objectid import ObjectId
 
 
 class Task():
@@ -7,9 +8,11 @@ class Task():
         super().__init__()
         self.db = db
 
-    def find_task(self, name):
-        task = self.db.tasks.find_one({"name": name})
+    def find_task(self, id):
+        task = self.db.tasks.find_one({"_id": ObjectId(id)})
+        print(task)
         if task:
+            task["_id"] = str(task['_id'])
             return task
         else:
             return None
@@ -27,6 +30,26 @@ class Task():
             output.append(task)
         return output
 
-    def createtask(self, task):
-        self.db.tasks.insert_one(task)
-        return self.find_task(task['name'])
+    def post(self, folderId, name):
+        task = {"userId": session['uid'], "folderId": folderId, "name": name}
+        task = self.db.tasks.insert_one(task)
+        return self.find_task(task.inserted_id)
+
+    # update task
+    def put(self, id, task):
+        del task["_id"]
+        task = self.db.tasks.update_one({
+            "_id": ObjectId(id)
+        }, {
+            "$set": {
+                **
+                task
+            }
+        })
+        print(task.upserted_id)
+        return self.find_task(id)
+
+    # delete task
+    def delete(self, id):
+        task = self.db.tasks.delete_one({"_id": ObjectId(id)})
+        return task

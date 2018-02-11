@@ -24,33 +24,64 @@ MONGO = PyMongo(app)
 bcrypt = Bcrypt(app)
 
 
-@app.route('/api/users')
-def api_users():
-    userDb = User(MONGO.db)
-    users = userDb.get_users()
-    # return json format
-    return jsonify({'result': users})
-
-
-@app.route('/api/tasks')
+@app.route('/api/tasks', methods=['GET', 'POST'])
 def api_tasks():
     taskDb = Task(MONGO.db)
-    # convert args todict
-    query=request.args.to_dict()
-    if query.get("star","")=="true":
-        query['star']=True
-    if query.get("status","")=="1":
-        query['status']=True
-    tasks = taskDb.get_tasks(query)
-    return get_json_response(app, data=tasks)
+    if request.method == "GET":
+        # convert args todict
+        query = request.args.to_dict()
+        if query.get("star", "") == "true":
+            query['star'] = True
+        if query.get("status", "") == "1":
+            query['status'] = True
+        tasks = taskDb.get_tasks(query)
+        return get_json_response(app, data=tasks)
+    elif request.method == "POST":
+        folderId = request.json['id']
+        name = request.json['name']
+        task = taskDb.post(folderId, name)
+        return get_json_response(app, data=task, message="添加成功")
 
 
-@app.route('/api/folders')
+@app.route('/api/tasks/<task_id>', methods=['PUT', 'DELETE'])
+def api_task_detail(task_id):
+    taskDb = Task(MONGO.db)
+    if request.method == 'PUT':
+        task = request.json
+        task = taskDb.put(task_id, task)
+        return get_json_response(app, data=task)
+    if request.method == 'DELETE':
+        task = taskDb.delete(task_id)
+        return jsonify({"code": 0, "message": "删除成功"})
+
+
+@app.route('/api/folders', methods=['GET', 'POST'])
 def api_folders():
     folderDb = Folder(MONGO.db)
-    foldertype = request.args.get('type',"")
-    folders = folderDb.get_folders(foldertype)
-    return get_json_response(app, data=folders)
+    if request.method == 'GET':
+        foldertype = request.args.get('type', "")
+        folders = folderDb.get_folders(foldertype)
+        return get_json_response(app, data=folders)
+    if request.method == 'POST':
+        name = request.json['name']
+        folder = folderDb.post(name)
+        return get_json_response(app, data=folder, message="添加成功")
+
+
+@app.route('/api/folders/<folder_id>', methods=['PUT', 'DELETE', 'GET'])
+def api_folder_detail(folder_id):
+    folderDb = Folder(MONGO.db)
+    if request.method == 'GET':
+        folder = folderDb.find_folder(folder_id)
+        return get_json_response(app, data=folder)
+    if request.method == "PUT":
+        folder = request.json
+        folder = folderDb.put(folder_id, folder)
+        return get_json_response(app, data=folder)
+    if request.method == "DELETE":
+        folder = folderDb.delete(folder_id)
+        return jsonify({"code": 0, "message": "删除成功"})
+
 
 # 注册接口
 @app.route('/api/register', methods=['POST'])
@@ -67,17 +98,19 @@ def api_register():
         data = {'name': name, "email": email, 'password': pw_hash}
         user = userDb.createUser(data)
         if user:
-            print(type(user))
             # ObjectId('5a75c691e566330f9a86a052') is not JSON serializable不能序列化是个问题啊
             resp = get_json_response(app, data=user, message="注册成功")
             return resp
         else:
             return jsonify({"code": -1, "message": "注册失败"})
 
+
 # 登陆接口
 @app.route('/api/login', methods=['POST'])
 def api_login():
     userDb = User(MONGO.db)
+    # 初始化
+    folderDb = Folder(MONGO.db)
     name = request.json['name']
     password = request.json['password']
     user = userDb.find_user(name)
@@ -85,11 +118,13 @@ def api_login():
         if bcrypt.check_password_hash(user['password'], password):
             resp = get_json_response(app, data=user, message="登陆成功")
             session['uid'] = str(user["_id"])
+            folderDb.initfolders(session['uid'])
             return resp
         else:
             return jsonify({"code": -1, "message": "用户名或密码错误"})
     else:
         return jsonify({"code": -1, "message": "用户不存在"})
+
 
 # 退出登录接口
 @app.route('/api/logout')
