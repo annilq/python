@@ -1,3 +1,4 @@
+from flask import session
 from flask_pymongo import PyMongo
 
 
@@ -13,13 +14,16 @@ class Task():
         else:
             return None
 
-    def get_tasks(self):
+    def get_tasks(self, param):
         """当前方法只能在flask的上下文中运行，单独执行会报错"""
         output = []
         # return a collection cursor
-        tasks = self.db.tasks.find()
+        query = {"userId": session['uid']}
+        query = {**query, **param}
+        tasks = self.db.tasks.find(query)
         # convert to list
         for task in tasks:
+            task["_id"] = str(task['_id'])
             output.append(task)
         return output
 

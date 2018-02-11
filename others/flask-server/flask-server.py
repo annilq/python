@@ -1,5 +1,6 @@
 from flask import Flask, url_for, redirect, jsonify, request, session, send_from_directory
 from flask_pymongo import PyMongo
+from flask_session import Session
 from flask_bcrypt import Bcrypt
 
 from util import get_json_response
@@ -8,6 +9,10 @@ from controller.folder import Folder
 from controller.task import Task
 
 app = Flask(__name__, static_url_path='/static')
+# session config
+SESSION_TYPE = 'mongodb'
+app.config.from_object(__name__)
+Session(app)
 
 # connect to another MongoDB database on the same host
 app.config['MONGO_DBNAME'] = 'react-todo'
@@ -30,17 +35,24 @@ def api_users():
 @app.route('/api/tasks')
 def api_tasks():
     taskDb = Task(MONGO.db)
-    tasks = taskDb.get_tasks()
+    # convert args todict
+    query=request.args.to_dict()
+    if query.get("star","")=="true":
+        query['star']=True
+    if query.get("status","")=="1":
+        query['status']=True
+    tasks = taskDb.get_tasks(query)
     return get_json_response(app, data=tasks)
 
 
 @app.route('/api/folders')
 def api_folders():
     folderDb = Folder(MONGO.db)
-    folders = folderDb.get_folders()
+    foldertype = request.args.get('type',"")
+    folders = folderDb.get_folders(foldertype)
     return get_json_response(app, data=folders)
 
-
+# 注册接口
 @app.route('/api/register', methods=['POST'])
 def api_register():
     userDb = User(MONGO.db)
@@ -62,7 +74,7 @@ def api_register():
         else:
             return jsonify({"code": -1, "message": "注册失败"})
 
-
+# 登陆接口
 @app.route('/api/login', methods=['POST'])
 def api_login():
     userDb = User(MONGO.db)
@@ -72,23 +84,32 @@ def api_login():
     if user:
         if bcrypt.check_password_hash(user['password'], password):
             resp = get_json_response(app, data=user, message="登陆成功")
+            session['uid'] = str(user["_id"])
             return resp
         else:
             return jsonify({"code": -1, "message": "用户名或密码错误"})
     else:
         return jsonify({"code": -1, "message": "用户不存在"})
 
+# 退出登录接口
+@app.route('/api/logout')
+def api_logout():
+    session.pop('username', None)
+    return jsonify({"code": 0, "message": "退出成功"})
+
+
 # before_request hook
 
 
 @app.before_request
 def before_action():
-    if request.path.find('/api/') > -1:
-        if not request.path == '/login':
-            if not 'username' in session:
-                print("this user timeout")
+    if '/api/' in request.path:
+        if '/api/login' not in request.path:
+            if 'userId' not in session:
+                return jsonify({"code": -1, "message": "登陆过期"})
 
 
+@app.route('/')
 @app.route('/<path:path>')
 def catch_all(path):
     return send_from_directory('', 'index.html')
