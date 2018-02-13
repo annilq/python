@@ -2,6 +2,7 @@ from flask import Flask, url_for, redirect, jsonify, request, session, send_from
 from flask_pymongo import PyMongo
 from flask_session import Session
 from flask_bcrypt import Bcrypt
+from werkzeug.exceptions import HTTPException
 
 from util import get_json_response
 from controller.user import User
@@ -129,7 +130,7 @@ def api_login():
 # 退出登录接口
 @app.route('/api/logout')
 def api_logout():
-    session.pop('username', None)
+    session.pop('userId', None)
     return jsonify({"code": 0, "message": "退出成功"})
 
 
@@ -139,16 +140,24 @@ def api_logout():
 @app.before_request
 def before_action():
     if '/api/' in request.path:
+        print("session-------------------------:",session.get('userId', ''))        
         if '/api/login' not in request.path:
             if 'userId' not in session:
-                return jsonify({"code": -1, "message": "登陆过期"})
+                return jsonify({"code": -2, "message": "登陆过期"})
 
 
-@app.route('/')
+@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
     return send_from_directory('', 'index.html')
 
+
+@app.errorhandler(Exception)
+def handle_error(e):
+    code = 500
+    if isinstance(e, HTTPException):
+        code = e.code
+    return jsonify(error=str(e)), code
 
 app.secret_key = 'annilq'
 
